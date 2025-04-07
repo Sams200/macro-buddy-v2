@@ -4,6 +4,8 @@ import com.example.sams.entity.Entry;
 import com.example.sams.entity.Food;
 import com.example.sams.entity.User;
 import com.example.sams.enumeration.MealType;
+import com.example.sams.enumeration.Role;
+import com.example.sams.exception.ResourceNotFoundException;
 import com.example.sams.mapper.EntryMapper;
 import com.example.sams.repo.EntryRepo;
 import com.example.sams.repo.FoodRepo;
@@ -15,10 +17,14 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,30 +38,47 @@ public class EntryService implements IEntryService {
     private final FoodRepo foodRepo;
 
     @Override
-    public List<EntryResponse> findByUser(Long userId) {
-        List<Entry> entries=entryRepo.findByUser_UserId(userId);
-        return entries.stream().map(entryMapper::toEntryResponse).toList();
+    public Page<EntryResponse> findByUser(Authentication authentication, Pageable pageable) {
+        User user = (User) authentication.getPrincipal();
+        Page<Entry> entries=entryRepo.findByUser_UserId(user.getUserId(), pageable);
+        if(entries.isEmpty()){
+            //throw new ResourceNotFoundException("Entries not found");
+            return new PageImpl<>(Collections.emptyList());
+        }
+        
+        return entries.map(entryMapper::toEntryResponse);
     }
 
     @Override
-    public List<EntryResponse> findByUserIdAndDate(Long userId, LocalDate date) {
-        List<Entry> entries=
-                entryRepo.findByUser_UserIdAndDate(userId,date);
-        return entries.stream()
-                .map(entryMapper::toEntryResponse)
-                .collect(Collectors.toList());
+    public Page<EntryResponse> findByUserAndDate(Authentication authentication, LocalDate date, Pageable pageable) {
+        User user = (User) authentication.getPrincipal();
+        Page<Entry> entries=
+                entryRepo.findByUser_UserIdAndDate(user.getUserId(), date,pageable);
+
+        if(entries.isEmpty()){
+            return new PageImpl<>(Collections.emptyList());
+            //throw new ResourceNotFoundException("Entries not found");
+        }
+
+        return entries.map(entryMapper::toEntryResponse);
     }
 
     @Override
-    public void deleteById(Long id) {
-        Entry entry = entryRepo.findById(id).orElseThrow(()->new RuntimeException("Entry not found with id"));
+    public void deleteById(Authentication authentication,Long id) {
+        User user = (User) authentication.getPrincipal();
+        Entry entry = entryRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("Entry not found with id"));
+
+        if(!entry.getUser().getUserId().equals(user.getUserId())
+                && user.getRole().equals(Role.ROLE_USER)){
+            throw new InsufficientAuthenticationException("You do not have permission to delete this entry");
+        }
         entryRepo.delete(entry);
     }
 
     @Override
-    public EntryResponse create(Long userId, @Valid EntryRequest request) {
-        Food food=foodRepo.findById(request.foodId()).orElseThrow(()->new RuntimeException("Food not found with id"));
-        User user=userRepo.findById(userId).orElseThrow(()->new RuntimeException("User not found with id"));
+    public EntryResponse save(Authentication authentication, @Valid EntryRequest request){
+        User user = (User) authentication.getPrincipal();
+        Food food=foodRepo.findById(request.foodId()).orElseThrow(()->new ResourceNotFoundException("Food not found with id"));
 
         Entry entry=Entry.builder()
                 .quantity(request.quantity())
@@ -64,25 +87,24 @@ public class EntryService implements IEntryService {
                 .food(food)
                 .user(user)
                 .build();
-        Entry newEntry=entryRepo.save(entry);
-        return entryMapper.toEntryResponse(newEntry);
+
+        return entryMapper.toEntryResponse(entryRepo.save(entry));
     }
 
     @Override
-    public void save(Long userId, Long entryId, @Valid EntryRequest request){
-        Food food=foodRepo.findById(request.foodId()).orElseThrow(()->new RuntimeException("Food not found with id"));
-        User user=userRepo.findById(userId).orElseThrow(()->new RuntimeException("User not found with id"));
+    public EntryResponse update(Authentication authentication, @Valid EntryRequest request, Long entryId){
+        User user = (User) authentication.getPrincipal();
+        Entry entry = entryRepo.findById(entryId).orElseThrow(()->new ResourceNotFoundException("Entry not found with id"));
 
-        Entry entry=Entry.builder()
-                .entryId(entryId)
-                .quantity(request.quantity())
-                .meal(MealType.getInstance(request.meal()))
-                .date(request.date())
-                .food(food)
-                .user(user)
-                .build();
+        if(!entry.getUser().getUserId().equals(user.getUserId())
+                && user.getRole().equals(Role.ROLE_USER)){
+            throw new InsufficientAuthenticationException("You do not have permission to delete this entry");
+        }
 
-        entryRepo.save(entry);
+        entry.setQuantity(request.quantity());
+        entry.setMeal(MealType.getInstance(request.meal()));
+
+        return entryMapper.toEntryResponse(entryRepo.save(entry));
     }
 
 

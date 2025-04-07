@@ -15,7 +15,8 @@ import java.util.List;
 public interface EntryRepo extends JpaRepository<Entry, Long> {
 
     @Query("SELECT e FROM Entry e WHERE e.user.userId = :userId ORDER BY e.date")
-    List<Entry> findByUser_UserId(@Param("userId") Long userId);
-    List<Entry> findByUser_UserIdAndDate(Long userUserId, LocalDate date);
+    Page<Entry> findByUser_UserId(@Param("userId") Long userId, Pageable pageable);
+    Page<Entry> findByUser_UserIdAndDate(Long userUserId, LocalDate date, Pageable pageable);
+    Page<Entry> findByFood_FoodId(Long foodId, Pageable pageable);
 
 }

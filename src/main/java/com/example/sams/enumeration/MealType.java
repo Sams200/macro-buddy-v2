@@ -7,11 +7,10 @@ public enum MealType {
     /*
     an enumeration of all the meal types and water
      */
-    BREAKFAST("Breakfast"),
-    LUNCH("Lunch"),
-    DINNER("Dinner"),
-    SNACK("Snacks"),
-    WATER("Water");
+    BREAKFAST("BREAKFAST"),
+    LUNCH("LUNCH"),
+    DINNER("DINNER"),
+    SNACK("SNACK");
 
     private final String meal;
 
@@ -28,7 +27,6 @@ public enum MealType {
     given a string, get the enumeration
      */
         return switch (meal.charAt(0)) {
-            case 'W' -> WATER;
             case 'B' -> BREAKFAST;
             case 'L' -> LUNCH;
             case 'D' -> DINNER;

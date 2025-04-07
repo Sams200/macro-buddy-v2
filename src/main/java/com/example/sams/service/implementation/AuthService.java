@@ -1,9 +1,10 @@
 package com.example.sams.service.implementation;
 
-import com.example.sams.controller.SessionManager;
 import com.example.sams.entity.User;
 import com.example.sams.entity.UserSettings;
 import com.example.sams.enumeration.Role;
+import com.example.sams.exception.ResourceAlreadyExistsException;
+import com.example.sams.exception.ResourceNotFoundException;
 import com.example.sams.mapper.UserMapper;
 import com.example.sams.repo.UserRepo;
 import com.example.sams.repo.UserSettingsRepo;
@@ -16,6 +17,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,44 +31,44 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 public class AuthService implements IAuthService {
-    //private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     private final UserRepo userRepo;
     private final UserMapper userMapper;
     private final UserSettingsRepo userSettingsRepo;
+    //private final CaptchaService captchaService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final CookieService cookieService;
+
+    @Value("${jwt.duration}")
+    private String jwtDuration;
 
 
     @Override
     public UserResponse signUp(@Valid SignUpRequest request) {
-        if(request == null)
-            throw new IllegalArgumentException("Sign up request cannot be null");
-
-        if(!request.password().equals(request.confirmPassword()))
-            throw new IllegalArgumentException("Passwords do not match");
+        //captchaService.validateTokenV2(request.recaptchaToken());
 
         String name=request.username();
         String mail=request.email();
 
         Optional<User> existing=userRepo.findByUsername(name);
         if(existing.isPresent()){
-            throw new RuntimeException("Username already exists");
+            throw new ResourceAlreadyExistsException("Username already exists");
         }
 
         existing=userRepo.findByEmail(mail);
         if(existing.isPresent()){
-            throw new RuntimeException("Email is already in use");
+            throw new ResourceAlreadyExistsException("Email is already in use");
         }
 
         User user=User.builder()
                 .username(name)
                 .email(mail)
-                .password(request.password())
+                .password(passwordEncoder.encode(request.password()))
                 .role(Role.ROLE_USER)
                 .build();
 
-        if(request.adminPassword().equals("admin"))
-            user.setRole(Role.ROLE_ADMIN);
 
-        user=userRepo.save(user);
 
         UserSettings userSettings=UserSettings.builder()
                 .goalKcal(2020)
@@ -74,32 +78,33 @@ public class AuthService implements IAuthService {
                 .user(user)
                 .build();
 
+        user=userRepo.save(user);
         userSettingsRepo.save(userSettings);
 
         return userMapper.toUserResponse(user);
     }
 
     @Override
-    public UserResponse signIn(@Valid SignInRequest signInRequest) {
-        if(signInRequest == null)
-            throw new IllegalArgumentException("Sign in request cannot be null");
-
+    public void signIn(@Valid SignInRequest signInRequest,HttpServletResponse response) {
         User user=authenticate(signInRequest.username(), signInRequest.password());
-        SessionManager.setUser(user);
+        String jwt= jwtService.generateToken(user, Long.parseLong(jwtDuration));
+        HttpCookie cookie= cookieService.createAccessTokenCookie(jwt, Long.parseLong(jwtDuration));
 
-        return userMapper.toUserResponse(user);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     @Override
-    public void signOut() {
-        SessionManager.logout();
+    public void signOut(HttpServletResponse response) {
+        HttpCookie cookie1 = cookieService.deleteAccessTokenCookie();
+        HttpCookie cookie2 = cookieService.removeXsrfCookie();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie1.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie2.toString());
     }
 
     private User authenticate(String username, String password) {
-        User user = userRepo.findByUsername(username).orElseThrow(()->new RuntimeException("User not found"));
-        if(! user.getPassword().equals(password)){
-            throw new RuntimeException("Wrong password");
-        }
+        User user = userRepo.findByUsername(username).orElseThrow(()->new ResourceNotFoundException("User not found"));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
         return user;
     }

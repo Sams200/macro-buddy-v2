@@ -2,6 +2,7 @@ package com.example.sams.service.implementation;
 
 import com.example.sams.entity.User;
 import com.example.sams.entity.UserSettings;
+import com.example.sams.exception.ResourceNotFoundException;
 import com.example.sams.mapper.UserMapper;
 import com.example.sams.mapper.UserSettingsMapper;
 import com.example.sams.repo.UserRepo;
@@ -13,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -26,20 +28,19 @@ public class UserSettingsService implements IUserSettingsService {
     private final UserSettingsMapper userSettingsMapper;
 
     @Override
-    public UserSettingsResponse findByUserId(Long userId) {
+    public UserSettingsResponse findAuthenticatedUserData(Authentication authentication) {
+        User user = ((User) authentication.getPrincipal());
         UserSettings userSettings=
-                userSettingsRepo.findByUser_UserId(userId)
-                .orElseThrow(()->new EntityNotFoundException("User settings not found"));
+                userSettingsRepo.findByUser_UserId(user.getUserId())
+                .orElseThrow(()->new ResourceNotFoundException("User settings not found"));
 
         return userSettingsMapper.toUserSettingsResponse(userSettings);
     }
 
     @Override
-    public UserSettingsResponse createOrUpdate(Long userId, @Valid UserSettingsRequest request) {
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
-
-        UserSettings userSettings = userSettingsRepo.findByUser_UserId(userId)
+    public UserSettingsResponse update(Authentication authentication, UserSettingsRequest request) {
+        User user = ((User) authentication.getPrincipal());
+        UserSettings userSettings = userSettingsRepo.findByUser_UserId(user.getUserId())
                 .orElse(new UserSettings());
 
         userSettings.setGoalKcal(request.goalKcal());
@@ -52,4 +53,6 @@ public class UserSettingsService implements IUserSettingsService {
 
         return userSettingsMapper.toUserSettingsResponse(savedSettings);
     }
+
+
 }

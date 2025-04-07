@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/authentication")
+@RequestMapping("/api/v1/authentication")
 public class AuthController {
     private final AuthService authService;
 
@@ -41,7 +41,8 @@ public class AuthController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<HttpResponse> signIn(@RequestBody SignInRequest request, HttpServletResponse response) {
-        var res = authService.signIn(request);
+        authService.signIn(request,response);
+
         return ResponseEntity.ok(
                 HttpResponse
                         .builder()
@@ -49,14 +50,13 @@ public class AuthController {
                         .responseMessage("Sign in successful for " + request.username())
                         .responseStatus(HttpStatus.OK)
                         .responseStatusCode(HttpStatus.OK.value())
-                        .body(res)
                         .build()
         );
     }
 
     @PostMapping("/sign-out")
-    public ResponseEntity<HttpResponse> signOut() {
-        authService.signOut();
+    public ResponseEntity<HttpResponse> signOut(HttpServletResponse response) {
+        authService.signOut(response);
 
         return ResponseEntity.ok(
                 HttpResponse

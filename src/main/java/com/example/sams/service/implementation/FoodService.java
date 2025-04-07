@@ -1,7 +1,10 @@
 package com.example.sams.service.implementation;
 
 import com.example.sams.entity.Food;
+import com.example.sams.exception.ResourceAlreadyExistsException;
+import com.example.sams.exception.ResourceNotFoundException;
 import com.example.sams.mapper.FoodMapper;
+import com.example.sams.repo.EntryRepo;
 import com.example.sams.repo.FoodRepo;
 import com.example.sams.request.admin.FoodRequest;
 import com.example.sams.response.FoodResponse;
@@ -21,13 +24,14 @@ import java.util.Optional;
 public class FoodService implements IFoodService {
     private final FoodRepo foodRepo;
     private final FoodMapper foodMapper;
+    private final EntryRepo entryRepo;
 
 
     @Override
     public Page<FoodResponse> findAll(Pageable pageable) {
         Page<Food> foods = foodRepo.findAll(pageable);
         if(foods.isEmpty())
-            throw new RuntimeException("No food found");
+            throw new ResourceNotFoundException("No food found");
 
         return foods.map(foodMapper::toFoodResponse);
     }
@@ -36,7 +40,7 @@ public class FoodService implements IFoodService {
     public FoodResponse findById(Long foodId) {
         Optional<Food> food = foodRepo.findById(foodId);
         if(food.isEmpty())
-            throw new RuntimeException("No food with requested is could be found");
+            throw new ResourceNotFoundException("No food with requested is could be found");
 
         return foodMapper.toFoodResponse(food.get());
     }
@@ -45,14 +49,17 @@ public class FoodService implements IFoodService {
     public Page<FoodResponse> findByNameMatches(String string, Pageable pageable) {
         Page<Food> foods = foodRepo.findByNameContainingIgnoreCase(string, pageable);
         if(foods.isEmpty())
-            throw new RuntimeException("No food found");
+            throw new ResourceNotFoundException("No food found");
 
         return foods.map(foodMapper::toFoodResponse);
     }
 
     @Override
     public void deleteById(Long foodId) {
-        Food food = foodRepo.findById(foodId).orElseThrow(()->new RuntimeException("Food with requested id could not be found"));
+        Food food = foodRepo.findById(foodId).orElseThrow(()->new ResourceNotFoundException("Food with requested id could not be found"));
+        var entries=entryRepo.findByFood_FoodId(foodId,null);
+
+        entryRepo.deleteAll(entries);
         foodRepo.delete(food);
     }
 
@@ -60,7 +67,7 @@ public class FoodService implements IFoodService {
     public FoodResponse create(@Valid FoodRequest request){
         Optional<Food> existing=foodRepo.findByNameIgnoreCaseAndProducerIgnoreCase(request.name(), request.producer());
         if (existing.isPresent())
-            throw new RuntimeException("Food with requested name and producer already exists");
+            throw new ResourceAlreadyExistsException("Food with requested name and producer already exists");
 
         Food food=Food.builder()
                 .name(request.name())
