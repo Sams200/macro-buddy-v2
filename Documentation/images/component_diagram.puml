@@ -1,0 +1,54 @@
+@startuml component_diagram
+
+skinparam componentStyle rectangle
+skinparam componentBackgroundColor LightBlue
+skinparam componentBorderColor Black
+
+package "Frontend: React Application" {
+    component "React UI Components"
+    component "Context/State Management"
+    component "API Services"
+    component "Auth Module"
+}
+
+package "Backend: Spring Boot Application" {
+    component "Security Filters" {
+        component "JwtCookieAuthFilter"
+    }
+
+    component "REST Controllers" {
+        component "AuthController"
+        component "EntryController"
+        component "FoodController"
+        component "UserController"
+        component "UserSettingsController"
+    }
+
+    component "Service Layer" {
+        component "AuthService"
+        component "EntryService"
+        component "FoodService"
+        component "UserService"
+        component "UserSettingsService"
+    }
+
+    component "Data Access" {
+        component "JPA Repositories"
+        component "Entity Mappers"
+    }
+}
+
+database "PostgreSQL" {
+    component "Entries Table"
+    component "Foods Table"
+    component "Users Table"
+    component "UserSettings Table"
+}
+
+"API Services" --> "Security Filters" : HTTP/REST
+"Security Filters" --> "REST Controllers"
+"REST Controllers" --> "Service Layer"
+"Service Layer" --> "Data Access"
+"Data Access" --> "PostgreSQL"
+
+@enduml

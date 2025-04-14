@@ -1,0 +1,84 @@
+@startuml package_diagram
+
+skinparam packageStyle rectangle
+skinparam packageBackgroundColor LightBlue
+skinparam packageBorderColor Black
+
+package "config" {
+    package "security" {
+        [AppConfig]
+        [JwtCookieAuthFilter]
+        [SecurityConfig]
+    }
+}
+
+package "controller" {
+    [AuthController]
+    [CSRFController]
+    [EntryController]
+    [FoodController]
+    [UserController]
+    [UserSettingsController]
+}
+
+package "entity" {
+    [Entry]
+    [Food]
+    [User]
+    [UserSettings]
+}
+
+package "mapper" {
+    [EntryMapper]
+    [FoodMapper]
+    [UserMapper]
+    [UserSettingsMapper]
+}
+
+package "repo" {
+    [EntryRepository]
+    [FoodRepository]
+    [UserRepository]
+    [UserSettingsRepository]
+}
+
+package "request" {
+    [EntryRequest]
+    [FoodRequest]
+    [PasswordChangeRequest]
+    [SingInRequest]
+    [SignUpRequest]
+    [UserSettingsRequest]
+}
+
+
+package "response" {
+    [EntryResponse]
+    [FoodResponse]
+    [HttpResponse]
+    [UserResponse]
+    [UserSettingsResponse]
+}
+
+package "service" {
+    [AuthService]
+    [CookieService]
+    [EntryService]
+    [FoodService]
+    [JwtService]
+    [UserService]
+    [UserSettingsService]
+}
+
+controller --> service
+service --> repository
+repository --> entity
+controller ..> request
+controller ..> response
+service ..> mapper
+mapper ..> entity
+mapper ..> request
+mapper ..> response
+config ..> service
+
+@enduml

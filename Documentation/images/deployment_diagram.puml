@@ -1,0 +1,39 @@
+@startuml deployment_diagram
+
+skinparam nodeBackgroundColor LightBlue
+skinparam nodeBorderColor Black
+skinparam databaseBackgroundColor LightYellow
+
+node "Client Device" {
+    artifact "Web Browser" {
+        component "React TypeScript Application"
+    }
+}
+
+node "Web Server / CDN" {
+    artifact "Static Content" {
+        component "HTML/CSS/JS Bundles"
+    }
+}
+
+node "Application Server" {
+    artifact "Spring Boot Application" {
+        component "REST API Controllers"
+        component "JWT Authentication"
+        component "CSRF Protection"
+        component "Service Layer"
+        component "Data Access Layer"
+    }
+}
+
+node "Database Server" {
+    database "PostgreSQL Docker Container" {
+        component "Data Storage"
+    }
+}
+
+"React TypeScript Application" --> "HTML/CSS/JS Bundles" : Load
+"React TypeScript Application" --> "REST API Controllers" : HTTPS/REST calls
+"Data Access Layer" --> "Data Storage" : JDBC
+
+@enduml

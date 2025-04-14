@@ -1,0 +1,46 @@
+@startuml domain_model
+
+    skinparam classFontStyle bold
+    skinparam classBackgroundColor LightBlue
+    skinparam classBorderColor Black
+
+    class User {
+        - userId: Long
+        - username: String
+        - email: String
+        - password: String
+        - role: String
+    }
+
+    class UserSettings {
+        - userSettingsId: Long
+        - goalKcal: Integer
+        - goalProtein: Float
+        - goalFat: Float
+        - goalCarbs: Float
+    }
+
+    class Food {
+        - foodId: Long
+        - name: String
+        - producer: String
+        - servingSize: Float
+        - servingUnits: String
+        - kcal: Integer
+        - protein: Float
+        - fat: Float
+        - carbs: Float
+    }
+
+    class Entry {
+        - entryId: Long
+        - date: Date
+        - meal: String
+        - quantity: Float
+    }
+
+    User "1" -- "1" UserSettings : has >
+    User "1" -- "0..*" Entry : owns >
+    Entry "0..*" -- "1" Food : references >
+
+    @enduml

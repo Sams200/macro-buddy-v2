@@ -1,0 +1,31 @@
+@startuml conceptual_architecture
+
+skinparam componentStyle rectangle
+skinparam componentBackgroundColor LightBlue
+skinparam componentBorderColor Black
+skinparam DatabaseBackgroundColor LightYellow
+
+package "Frontend (React TypeScript)" {
+    [UI Components] --> [State Management]
+    [State Management] --> [API Service Layer]
+    [API Service Layer] --> [HTTP Clients]
+}
+
+package "Backend (Java Spring)" {
+    [REST Controllers] --> [Services]
+    [Services] --> [Repositories]
+    [Repositories] --> [Entities]
+    [Mappers] ..> [Entities]
+    [Mappers] ..> [DTOs]
+    [REST Controllers] ..> [DTOs]
+    [Config] ..> [Security]
+}
+
+database "PostgreSQL" {
+    [Data Storage]
+}
+
+[HTTP Clients] --> [REST Controllers] : HTTP/REST
+[Repositories] --> [Data Storage] : JDBC
+
+@enduml

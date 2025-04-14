@@ -1,0 +1,26 @@
+@startuml
+skinparam actorStyle awesome
+left to right direction
+actor User
+actor Admin
+User <|- Admin
+
+rectangle MacroBuddy {
+    usecase "Manage Users Database"
+    usecase "Manage Food Database"
+    usecase "Manage Users Database"
+    usecase "Modify Goal Settings"
+    usecase "Add/Remove Entry"
+    usecase "Login"
+    usecase "Sign up"
+    usecase "Modify Goal Settings"
+
+}
+Admin --> (Manage Users Database)
+Admin --> (Manage Food Database)
+Admin --> (Login)
+User --> (Modify Goal Settings)
+User --> (Add/Remove Entry)
+User --> (Login)
+User --> (Sign up)
+@enduml
