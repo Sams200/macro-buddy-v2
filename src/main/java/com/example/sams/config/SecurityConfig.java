@@ -68,6 +68,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/authenticated/entry/id=**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/authenticated/entry/id=**").authenticated()
 
+                        .requestMatchers(HttpMethod.GET, "/api/v1/authenticated/water").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/authenticated/water").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/authenticated/water/date=**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/authenticated/water/id=**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/authenticated/water/id=**").authenticated()
+
                         .anyRequest().hasAnyAuthority(Role.ROLE_ADMIN.name())
                 )
                 .sessionManagement(session -> session

@@ -39,3 +39,11 @@ CREATE TABLE IF NOT EXISTS entries (
     food_id BIGINT REFERENCES foods(food_id),
     user_id BIGINT REFERENCES users(user_id)
 );
+
+-- Water Intake table
+CREATE TABLE IF NOT EXISTS water_intake (
+    water_intake_id BIGSERIAL PRIMARY KEY,
+    date TIMESTAMP NOT NULL,
+    amount_ml INTEGER NOT NULL,
+    user_id BIGINT REFERENCES users(user_id)
+);
