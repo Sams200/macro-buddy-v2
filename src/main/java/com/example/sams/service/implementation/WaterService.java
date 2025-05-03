@@ -11,6 +11,7 @@ import com.example.sams.request.user.WaterRequest;
 import com.example.sams.response.WaterResponse;
 import com.example.sams.service.IWaterService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,14 +42,18 @@ public class WaterService implements IWaterService {
     }
 
     @Override
-    public Page<WaterResponse> findByUserAndDate(Authentication authentication, LocalDate localDate, Pageable pageable) {
+    public WaterResponse findByUserAndDate(Authentication authentication, LocalDate localDate) {
         User user = (User) authentication.getPrincipal();
-        Page<Water> waters=waterRepo.findByUser_UserIdAndDate(user.getUserId(), localDate, pageable);
-        if(waters.isEmpty()){
-            return new PageImpl<>(Collections.emptyList());
+        Water water=waterRepo.findByUser_UserIdAndDate(user.getUserId(), localDate);
+        if(water==null){
+            // Return a dummy water value
+            water=Water.builder()
+                    .user(user)
+                    .date(localDate)
+                    .amount(0)
+                    .build();
         }
-
-        return waters.map(waterMapper::toResponse);
+        return waterMapper.toResponse(water);
     }
 
     @Override
@@ -65,19 +70,24 @@ public class WaterService implements IWaterService {
 
 
     @Override
-    public WaterResponse save(Authentication authentication, WaterRequest waterRequest) {
+    public WaterResponse save(Authentication authentication, @Valid WaterRequest waterRequest) {
         User user = (User) authentication.getPrincipal();
-        Water water=Water.builder()
+        Water water=waterRepo.findByUser_UserIdAndDate(user.getUserId(),waterRequest.date());
+
+        if(!(water==null)){
+            return update(authentication,waterRequest,water.getWaterId());
+        }
+
+        water=Water.builder()
                 .date(waterRequest.date())
                 .amount(waterRequest.quantity())
                 .user(user)
                 .build();
-
         return waterMapper.toResponse(waterRepo.save(water));
     }
 
     @Override
-    public WaterResponse update(Authentication authentication, WaterRequest waterRequest,Long waterId) {
+    public WaterResponse update(Authentication authentication, @Valid WaterRequest waterRequest,Long waterId) {
         User user = (User) authentication.getPrincipal();
         Water water= waterRepo.findById(waterId).orElseThrow(()->new ResourceNotFoundException("Water not found with id"));
 

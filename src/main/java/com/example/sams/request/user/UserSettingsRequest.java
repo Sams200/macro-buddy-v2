@@ -18,6 +18,10 @@ public record UserSettingsRequest(
 
         @NotNull(message = "Carbs required")
         @Min(value=0, message = "Carbs must be greater or equal to 0")
-        Float goalCarbs
+        Float goalCarbs,
+
+        @NotNull(message = "Water required")
+        @Min(value=0, message = "Water must be greater or equal to 0")
+        Integer goalWater
 ) {
 }

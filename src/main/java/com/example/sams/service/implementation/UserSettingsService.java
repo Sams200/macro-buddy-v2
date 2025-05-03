@@ -38,7 +38,7 @@ public class UserSettingsService implements IUserSettingsService {
     }
 
     @Override
-    public UserSettingsResponse update(Authentication authentication, UserSettingsRequest request) {
+    public UserSettingsResponse update(Authentication authentication, @Valid UserSettingsRequest request) {
         User user = ((User) authentication.getPrincipal());
         UserSettings userSettings = userSettingsRepo.findByUser_UserId(user.getUserId())
                 .orElse(new UserSettings());
@@ -47,6 +47,7 @@ public class UserSettingsService implements IUserSettingsService {
         userSettings.setGoalProtein(request.goalProtein());
         userSettings.setGoalFat(request.goalFat());
         userSettings.setGoalCarbs(request.goalCarbs());
+        userSettings.setGoalWater(request.goalWater());
         userSettings.setUser(user);
 
         UserSettings savedSettings = userSettingsRepo.save(userSettings);

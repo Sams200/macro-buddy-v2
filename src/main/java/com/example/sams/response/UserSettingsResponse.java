@@ -4,6 +4,7 @@ public record UserSettingsResponse(
         Integer dailyKcalGoal,
         Float dailyProteinGoal,
         Float dailyFatGoal,
-        Float dailyCarbGoal
+        Float dailyCarbGoal,
+        Integer dailyWaterGoal
 ) {
 }

@@ -42,8 +42,8 @@ public class WaterController {
     }
 
     @GetMapping("/date={waterDate}")
-    public ResponseEntity<HttpResponse> findByAuthenticatedUserAndDate(@PathVariable("waterDate") LocalDate waterDate, Authentication authentication, Pageable pageable) {
-        Page<WaterResponse> result = waterService.findByUserAndDate(authentication,waterDate,pageable);
+    public ResponseEntity<HttpResponse> findByAuthenticatedUserAndDate(@PathVariable("waterDate") LocalDate waterDate, Authentication authentication) {
+        WaterResponse result = waterService.findByUserAndDate(authentication,waterDate);
 
         return ResponseEntity.ok(
                 HttpResponse

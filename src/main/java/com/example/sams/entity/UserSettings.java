@@ -29,6 +29,9 @@ public class UserSettings {
     @Column(name = "goal_carbs")
     private Float goalCarbs=200.0f;
 
+    @Column(name = "goal_water")
+    private Integer goalWater=2500;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true)
     private User user;

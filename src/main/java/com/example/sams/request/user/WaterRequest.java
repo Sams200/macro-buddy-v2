@@ -1,5 +1,6 @@
 package com.example.sams.request.user;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -10,7 +11,7 @@ public record WaterRequest(
     LocalDate date,
 
     @NotNull(message = "Water quantity required")
-    @Positive(message = "Water quantity must be positive")
+    @Min(value=0, message = "Water quantity must be positive")
     Integer quantity
 ) {
 }

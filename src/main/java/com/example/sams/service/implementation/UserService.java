@@ -12,6 +12,7 @@ import com.example.sams.request.user.PasswordChangeRequest;
 import com.example.sams.response.UserResponse;
 import com.example.sams.service.IUserService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +54,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void changePassword(Authentication authentication, PasswordChangeRequest request) {
+    public void changePassword(Authentication authentication, @Valid PasswordChangeRequest request) {
         User user = ((User) authentication.getPrincipal());
 
         if(!passwordEncoder.matches(request.currentPassword(),user.getPassword())){

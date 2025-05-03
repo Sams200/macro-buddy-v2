@@ -11,7 +11,8 @@ public class UserSettingsMapper {
                 settings.getGoalKcal(),
                 settings.getGoalProtein(),
                 settings.getGoalFat(),
-                settings.getGoalCarbs()
+                settings.getGoalCarbs(),
+                settings.getGoalWater()
         );
     }
 }

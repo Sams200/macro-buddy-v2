@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public interface IWaterService {
     Page<WaterResponse> findByUser(Authentication authentication, Pageable pageable);
     void deleteById(Authentication authentication, Long id);
-    Page<WaterResponse> findByUserAndDate(Authentication authentication, LocalDate localDate, Pageable pageable);
+    WaterResponse findByUserAndDate(Authentication authentication, LocalDate localDate);
     WaterResponse save(Authentication authentication, WaterRequest waterRequest);
     WaterResponse update(Authentication authentication, WaterRequest waterRequest, Long waterId);
 }

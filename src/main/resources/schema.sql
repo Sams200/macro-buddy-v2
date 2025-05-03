@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS user_settings (
     goal_protein FLOAT DEFAULT 170.0,
     goal_fat FLOAT DEFAULT 60.0,
     goal_carbs FLOAT DEFAULT 200.0,
+    goal_water FLOAT DEFAULT 2500,
     user_id BIGINT UNIQUE REFERENCES users(user_id)
 );
 
@@ -45,5 +46,6 @@ CREATE TABLE IF NOT EXISTS water_intake (
     water_intake_id BIGSERIAL PRIMARY KEY,
     date TIMESTAMP NOT NULL,
     amount_ml INTEGER NOT NULL,
-    user_id BIGINT REFERENCES users(user_id)
+    user_id BIGINT REFERENCES users(user_id),
+    CONSTRAINT unique_user_date UNIQUE (user_id, date)
 );
