@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/api/v1/authentication/sign-up", "/api/v1/authentication/sign-in")
                 )
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/ws/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/hello-world").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/csrf").permitAll()
 
