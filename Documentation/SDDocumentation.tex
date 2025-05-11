@@ -407,4 +407,171 @@
                 \item The PostgreSQL database runs in a Docker container for consistency across development and production environments.
                 \item All client-server communication occurs via HTTP/S using RESTful conventions.
             \end{itemize}
+
+\newpage
+\section{Deliverable 3}
+    \subsection{Design Model}
+        \subsubsection{Dynamic behavior}
+            \textbf{Sequence Diagram: Adding a Food Entry}\\
+            The sequence diagram illustrates the process of a user adding a food entry to their journal, showcasing the interactions between the frontend components and backend services.
+
+            \begin{figure}[h]
+            \centering
+            \includegraphics[width=1\textwidth]{sequence_1}
+            \caption{Sequence Diagram}
+            \end{figure}
+
+            \newpage
+            \textbf{Communication Diagram: Creating a New Food}\\
+            The communication diagram illustrates the process of an admin creating a new food. It shows the transformation between DTOs and entity objects, and demonstrates the separation of the services.
+
+            \begin{figure}[h]
+            \centering
+            \includegraphics[width=1\textwidth]{communication}
+            \caption{Communication Diagram}
+            \end{figure}
+
+        \subsubsection{Class Diagram}
+            The following class diagrams illustrate the structure of the Macro Buddy application.
+
+            \includegraphics[width=1\textwidth]{class_config}
+            \includegraphics[width=1\textwidth]{class_controller}
+
+            \includegraphics[width=1\textwidth]{class_entity}
+            \includegraphics[width=1\textwidth]{class_repo}
+
+
+            \includegraphics[width=1\textwidth]{class_service}
+
+            The class diagram incorporates several Gang of Four (GoF) design patterns to enhance the application's architecture:
+
+            \begin{enumerate}
+                \item \textbf{Strategy Pattern}: The service interfaces (UserService, FoodService, EntryService) with their implementations (UserServiceImpl, FoodServiceImpl, EntryServiceImpl) demonstrate the Strategy pattern. This allows for different implementations of the same interface, making the system more flexible and testable.
+
+                \item \textbf{Factory Method Pattern}: The JWT token provider uses the Factory Method pattern to create authentication tokens, encapsulating the token creation logic within a specialized class.
+
+                \item \textbf{Singleton Pattern}: The SecurityConfig and other configuration classes are implemented as Spring @Configuration beans, which are effectively singletons managed by the Spring container.
+
+                \item \textbf{Adapter Pattern}: The Mapper classes (not fully shown) implement the Adapter pattern by converting between DTOs and entity objects, bridging the gap between the presentation layer and the domain model.
+
+                \item \textbf{Facade Pattern}: The service layer acts as a facade to the underlying repository operations, providing a simplified interface to the controllers and hiding the complexity of data access and business logic.
+            \end{enumerate}
+
+            These design patterns were used to promote separation of concerns, enhance maintainability, and  improve testability. The Strategy pattern, in particular, facilitates mock implementations for testing, while the Adapter pattern ensures that the internal domain model remains decoupled from the external API representation.
+            \newpage
+        \subsection{Data Model}
+            The data model for Macro Buddy is implemented using JPA entities mapped to PostgreSQL tables. The following diagram illustrates the relational database schema:
+
+            \begin{figure}[h]
+            \centering
+            \includegraphics[width=1\textwidth]{data_model}
+            \caption{Data Model}
+            \end{figure}
+
+            The database schema is designed with the following considerations:
+
+            \begin{enumerate}
+                \item \textbf{Normalization}: The schema follows normal form conventions to minimize data redundancy and improve data integrity.
+
+                \item \textbf{Constraints}:
+                \begin{itemize}
+                    \item Foreign key constraints ensure referential integrity
+                    \item Unique constraints on username and email prevent duplicates
+                    \item Check constraints ensure that nutritional values are non-negative
+                \end{itemize}
+
+            \end{enumerate}
+
+            \paragraph{JPA Implementation}
+
+            The Java entities are mapped to this schema using JPA annotations:
+
+            \begin{itemize}
+                \item @Entity, @Table annotations map classes to database tables
+                \item @Id, @GeneratedValue define primary keys and their generation strategy
+                \item @Column specifies column details including constraints
+                \item @ManyToOne, @OneToMany, @OneToOne establish entity relationships
+                \item @JoinColumn defines foreign key columns
+                \item @Enumerated maps Java enums to database columns
+            \end{itemize}
+
+            Hibernate is configured to automatically validate the schema against the entity definitions during application startup, ensuring consistency between the code and database schema.
+
+    \subsection{System Testing}
+            The testing strategy for Macro Buddy encompasses multiple testing levels to ensure the application's quality, reliability, and security. The following approach is implemented:
+            \\
+
+            \textbf{Unit Testing}:
+            \begin{itemize}
+                \item JUnit is used as the primary testing framework
+                \item Mockito provides mocking capabilities for isolating components
+                \item Each service class has dedicated test cases
+            \end{itemize}
+
+
+    \subsection{Future Improvements}
+        Based on the current implementation of Macro Buddy, several potential improvements and feature extensions could enhance the application's functionality and user experience:
+
+        \paragraph{Functional Enhancements}
+
+        \begin{enumerate}
+            \item \textbf{Recipe Management}:
+            \begin{itemize}
+                \item Allow users to create custom recipes composed of multiple food items
+                \item Calculate nutritional information for entire recipes
+                \item Enable sharing recipes between users
+            \end{itemize}
+
+            \item \textbf{Integration Capabilities}:
+            \begin{itemize}
+                \item API for integration with fitness tracking applications
+                \item Import nutritional data from external databases
+                \item Barcode scanning functionality for quick food entry
+                \item Export capabilities for nutritional data
+            \end{itemize}
+        \end{enumerate}
+
+        \paragraph{Technical Improvements}
+
+        \begin{enumerate}
+            \item \textbf{Enhanced Security}:
+            \begin{itemize}
+                \item Support for multi-factor authentication
+                \item Support for Google Captcha
+                \item Encryption of sensitive user data
+            \end{itemize}
+
+            \item \textbf{Mobile Support}:
+            \begin{itemize}
+                \item Develop a dedicated mobile application
+                \item Implement offline functionality for journal entries
+            \end{itemize}
+
+        \end{enumerate}
+
+        \paragraph{User Experience Enhancements}
+
+        \begin{enumerate}
+            \item \textbf{Personalization}:
+            \begin{itemize}
+                \item Customizable dashboard with widgets
+                \item Multiple themes for the entire application
+            \end{itemize}
+
+            \item \textbf{Social Features}:
+            \begin{itemize}
+                \item Achievement system for meeting nutritional goals
+                \item Optional sharing of progress on social platforms
+            \end{itemize}
+
+            \item \textbf{Educational Content}:
+            \begin{itemize}
+                \item Integrated nutritional articles and guides
+                \item Tips for maintaining a balanced diet
+                \item Explanations of nutritional concepts and terminology
+            \end{itemize}
+        \end{enumerate}
+
+        These improvements would significantly enhance Macro Buddy, transforming it from a basic calorie tracker into a comprehensive nutritional management platform.
+
 \end{document}
