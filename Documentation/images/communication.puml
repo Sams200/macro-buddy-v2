@@ -1,0 +1,20 @@
+@startuml
+
+skinparam actorStyle awesome
+
+actor Admin
+Admin -> "React Frontend" : 1. Input food data (name, producer, nutritional values)
+"React Frontend" -> "FoodController" : 2. POST /api/v1/food(foodRequest)
+"FoodController" -> "FoodService" : 3. createFood(foodRequest)
+"FoodService" -> "FoodMapper" : 4. toEntity(foodRequest)
+"FoodMapper" --> "FoodService" : 5. Food entity
+"FoodService" -> "FoodRepo" : 6. save(food)
+"FoodRepository" -> "Database" : 7. INSERT query
+"Database" --> "FoodRepo" : 8. Confirmation
+"FoodRepository" --> "FoodService" : 9. Saved Food
+"FoodService" -> "FoodMapper" : 10. toResponse(food)
+"FoodMapper" --> "FoodService" : 11. FoodResponse
+"FoodService" --> "FoodController" : 12. FoodResponse
+"FoodController" --> "React Frontend" : 13. Created food response
+"React Frontend" --> Admin : 14. Update food list
+@enduml

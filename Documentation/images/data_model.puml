@@ -1,0 +1,59 @@
+@startuml
+entity "users" {
+    * id : BIGINT <<PK>>
+    --
+    * username : VARCHAR(255) <<UQ>>
+    * email : VARCHAR(255) <<UQ>>
+    * password : VARCHAR(255)
+    * role : VARCHAR(50)
+}
+
+entity "user_settings" {
+    * id : BIGINT <<PK>>
+    --
+    * user_id : BIGINT <<FK>>
+    * goal_kcal : INTEGER
+    * goal_protein : FLOAT
+    * goal_fat : FLOAT
+    * goal_carbs : FLOAT
+    * goal_water : FLOAT
+}
+
+entity "foods" {
+    * id : BIGINT <<PK>>
+    --
+    * name : VARCHAR(255)
+    * producer : VARCHAR(255)
+    * serving_size : FLOAT
+    * serving_units : VARCHAR(50)
+    * kcal : INTEGER
+    * protein : FLOAT
+    * fat : FLOAT
+    * carbs : FLOAT
+}
+
+entity "entries" {
+    * id : BIGINT <<PK>>
+    --
+    * date : TIMESTAMP
+    * meal : VARCHAR(50)
+    * quantity : FLOAT
+    * food_id : BIGINT <<FK>>
+    * user_id : BIGINT <<FK>>
+}
+
+entity "water_intake" {
+    * id : BIGINT <<PK>>
+    --
+    * date : TIMESTAMP
+    * amount_ml : INTEGER
+    * user_id : BIGINT <<FK>>
+}
+
+
+users ||--o{ entries
+users ||--o{ water_intake
+
+users ||--|| user_settings
+foods ||--o{ entries
+@enduml

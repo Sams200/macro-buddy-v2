@@ -1,0 +1,95 @@
+@startuml
+
+package "service" {
+
+    class AuthService{
+        -AuthenticationManager
+        -UserRepo
+        -UserMapper
+        -UserSettingsRepo
+        -PasswordEncoder
+        -JwtService
+        -CookieService
+
+        +signUp()
+        +signIn()
+        +signOut()
+        +authenticate()
+    }
+
+    class ChatService{
+        +connect()
+        +disconnect()
+        +sendMessage()
+    }
+
+    class CookieService{
+        +createAccessToken()
+        +removeXsrfCookie()
+        +deleteAccessToken()
+    }
+
+    class EntryService{
+        -EntryRepo
+        -EntryMapper
+        -FoodRepo
+
+        +findByUser()
+        +delete()
+        +save()
+        +update()
+    }
+
+    class FoodService{
+        -FoodRepo
+        -FoodMapper
+        -EntryRepo
+
+        +findByNameMatches()
+        +findAll()
+        +delete()
+        +create()
+    }
+
+    class JwtService{
+        +generateToken()
+        +buildToken()
+        +getSignInKey()
+        +isTokenValid()
+        +extractClaim()
+    }
+
+    class UserService{
+        -UserRepo
+        -EntryRepo
+        -UserMapper
+        -UserSettingsRepo
+        -PasswordEncoder
+
+        +findAll()
+        +changePassword()
+        +delete()
+        +findAuthenticatedUserData()
+    }
+
+    class UserSettingsService{
+        -UserSettingsRepo
+        -UserSettingsMapper
+
+        +findAuthenticatedUserData()
+        +update()
+    }
+
+    class WaterService{
+        -WaterRepo
+        -WaterMapper
+
+        +findByUser()
+        +delete()
+        +save()
+        +update()
+    }
+
+}
+
+@enduml

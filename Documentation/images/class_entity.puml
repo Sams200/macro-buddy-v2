@@ -1,0 +1,68 @@
+@startuml
+package "entity" {
+    class User {
+        -Long id
+        -String username
+        -String email
+        -String password
+        -UserRole role
+    }
+
+    class UserSettings {
+        -Long id
+        -User user
+        -int calorieGoal
+        -float proteinGoal
+        -float fatGoal
+        -float carbGoal
+    }
+
+    class Food {
+        -Long id
+        -String name
+        -String producer
+        -String servingSize
+        -int calories
+        -float protein
+        -float fat
+        -float carbs
+    }
+
+    class Entry {
+        -Long id
+        -User user
+        -Food food
+        -LocalDate date
+        -MealType meal
+        -float quantity
+    }
+
+    class Water {
+        -Long id
+        -User user
+        -Integer amount
+        -LocalDate date
+        -MealType meal
+    }
+
+    enum UserRole {
+        ROLE_USER
+        ROLE_ADMIN
+    }
+
+    enum MealType {
+        BREAKFAST
+        LUNCH
+        DINNER
+        SNACK
+    }
+
+    User "1" -- "1" UserSettings
+    User "1" -- "*" Entry
+    User "1" -- "*" Water
+    Entry "*" -- "1" Food
+    User -- UserRole
+    Entry -- MealType
+}
+
+@enduml

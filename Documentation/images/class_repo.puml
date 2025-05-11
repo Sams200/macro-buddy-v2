@@ -1,0 +1,16 @@
+@startuml
+
+package "repo"{
+    interface EntryRepo{
+    }
+    interface FoodRepo{
+    }
+    interface UserRepo{
+    }
+    interface UserSettingsRep{
+    }
+    interface WaterRepo{
+    }
+}
+
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+
+package "config" {
+    class AppConfig {
+        -UserRepo userRepo
+        +passwordEncoder()
+        +userDetailsService()
+        +authenticationProvider()
+    }
+
+    class SecurityConfig {
+        +securityFilterChain()
+        +corsConfigurationSource()
+    }
+
+    class JwtCookieAuthFilter {
+        +doFilterInternal()
+    }
+
+    SecurityConfig -- JwtCookieAuthFilter
+}
+
+@enduml

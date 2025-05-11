@@ -1,0 +1,46 @@
+@startuml
+
+skinparam actorStyle awesome
+
+actor User
+participant "React Frontend" as Frontend
+participant "EntryController" as Controller
+participant "EntryService" as Service
+participant "FoodService" as FoodService
+participant "EntryRepository" as Repo
+participant "Database" as DB
+
+User -> Frontend: Select date and meal type
+
+User -> Frontend: Search for food item
+Frontend -> Controller: GET /api/v1/food/name={search}
+
+Controller -> FoodService: findByNameMatches(query)
+FoodService -> Repo: findByNameContaining(query)
+Repo -> DB: SELECT query
+DB --> Repo: Food results
+Repo --> FoodService: List<Food>
+FoodService --> Controller: List<FoodResponse>
+Controller --> Frontend: Food search results
+Frontend --> User: Display food options
+
+User -> Frontend: Select food and specify quantity
+Frontend -> Controller: POST /api/v1/authenticated/entry
+Controller -> Service: save(entryRequest)
+Service -> FoodService: findById(foodId)
+FoodService -> Repo: findById(foodId)
+Repo -> DB: SELECT query
+DB --> Repo: Food entity
+Repo --> FoodService: Food
+FoodService --> Service: Food
+
+Service -> Service: Calculate nutritional values based on quantity
+Service -> Repo: save(entry)
+Repo -> DB: INSERT query
+DB --> Repo: Confirmation
+Repo --> Service: Saved Entry
+Service --> Controller: EntryResponse
+Controller --> Frontend: Entry creation response
+Frontend --> User: Display updated journal with new entry
+
+@enduml

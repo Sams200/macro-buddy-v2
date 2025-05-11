@@ -1,0 +1,234 @@
+@startuml
+
+package "entity" {
+    class User {
+        -Long id
+        -String username
+        -String email
+        -String password
+        -UserRole role
+    }
+
+    class UserSettings {
+        -Long id
+        -User user
+        -int calorieGoal
+        -float proteinGoal
+        -float fatGoal
+        -float carbGoal
+    }
+
+    class Food {
+        -Long id
+        -String name
+        -String producer
+        -String servingSize
+        -int calories
+        -float protein
+        -float fat
+        -float carbs
+    }
+
+    class Entry {
+        -Long id
+        -User user
+        -Food food
+        -LocalDate date
+        -MealType meal
+        -float quantity
+    }
+
+    class Water {
+        -Long id
+        -User user
+        -Integer amount
+        -LocalDate date
+        -MealType meal
+    }
+
+    enum UserRole {
+        ROLE_USER
+        ROLE_ADMIN
+    }
+
+    enum MealType {
+        BREAKFAST
+        LUNCH
+        DINNER
+        SNACK
+    }
+
+    User "1" -- "1" UserSettings
+    User "1" -- "*" Entry
+    User "1" -- "*" Water
+    Entry "*" -- "1" Food
+    User -- UserRole
+    Entry -- MealType
+}
+
+package "config" {
+    class AppConfig {
+        -UserRepo userRepo
+        +passwordEncoder()
+        +userDetailsService()
+        +authenticationProvider()
+    }
+
+    class SecurityConfig {
+        +securityFilterChain()
+        +corsConfigurationSource()
+    }
+
+    class JwtCookieAuthFilter {
+        +doFilterInternal()
+    }
+
+    SecurityConfig -- JwtCookieAuthFilter
+}
+
+package "controller" {
+    class AuthController {
+        -AuthService authService
+        +signUp()
+        +singIn()
+        +signOut()
+    }
+
+    class ChatController {
+        -ChatService chatService
+        +connect()
+        +disconnect()
+        +sendMessage()
+    }
+
+    class EntryController {
+        -EntryService entryService
+        +findByAuthenticatedUser()
+        +save()
+        +deleteById()
+    }
+
+    class FoodController {
+        -FoodService foodService
+        +findAll()
+        +findByNameMatches()
+        +findById()
+        +deleteById()
+        +save()
+    }
+
+    class UserController {
+        -UserService userService
+        +findAll()
+        +findById()
+        +changePassword()
+        +delete()
+        +findAuthenticatedUserData()
+    }
+
+    class UserSettingsController {
+        -UserSettingsService userSettingsService
+        +findAuthenticatedUserData()
+        +update()
+    }
+
+    class WaterController {
+        -WaterService waterService
+        +findByAuthenticatedUser()
+        +save()
+        +deleteById()
+        +updateById()
+    }
+
+}
+
+
+package "repo"{
+    interface EntryRepo{
+    }
+    interface FoodRepo{
+    }
+    interface UserRepo{
+    }
+    interface UserSettingsRep{
+    }
+    interface WaterRepo{
+    }
+}
+
+package "service" {
+    interface UserService {
+        +createUser(UserRequestDTO): UserResponseDTO
+        +getUserById(Long): UserResponseDTO
+        +getCurrentUser(): UserResponseDTO
+        +updateUserSettings(SettingsRequestDTO): SettingsResponseDTO
+    }
+
+    class UserServiceImpl {
+        -UserRepository userRepository
+        -UserSettingsRepository settingsRepository
+        -PasswordEncoder passwordEncoder
+        -UserMapper userMapper
+        +createUser(UserRequestDTO): UserResponseDTO
+        +getUserById(Long): UserResponseDTO
+        +getCurrentUser(): UserResponseDTO
+        +updateUserSettings(SettingsRequestDTO): SettingsResponseDTO
+    }
+
+    interface FoodService {
+        +createFood(FoodRequestDTO): FoodResponseDTO
+        +getFood(Long): FoodResponseDTO
+        +searchFoods(String): List<FoodResponseDTO>
+        +getAllFoods(): List<FoodResponseDTO>
+    }
+
+    class FoodServiceImpl {
+        -FoodRepository foodRepository
+        -FoodMapper foodMapper
+        +createFood(FoodRequestDTO): FoodResponseDTO
+        +getFood(Long): FoodResponseDTO
+        +searchFoods(String): List<FoodResponseDTO>
+        +getAllFoods(): List<FoodResponseDTO>
+    }
+
+    interface EntryService {
+        +createEntry(EntryRequestDTO): EntryResponseDTO
+        +getEntriesByDate(LocalDate): List<EntryResponseDTO>
+        +getEntriesByDateAndMeal(LocalDate, MealType): List<EntryResponseDTO>
+        +getDailyNutritionSummary(LocalDate): NutritionSummaryDTO
+    }
+
+    class EntryServiceImpl {
+        -EntryRepository entryRepository
+        -UserService userService
+        -FoodService foodService
+        -EntryMapper entryMapper
+        +createEntry(EntryRequestDTO): EntryResponseDTO
+        +getEntriesByDate(LocalDate): List<EntryResponseDTO>
+        +getEntriesByDateAndMeal(LocalDate, MealType): List<EntryResponseDTO>
+        +getDailyNutritionSummary(LocalDate): NutritionSummaryDTO
+    }
+
+    class NutritionCalculator {
+        +{static} calculateNutrients(Food, float): Map<String, Float>
+        +{static} calculateDailyTotals(List<Entry>): NutritionSummaryDTO
+        +{static} calculateGoalProgress(NutritionSummaryDTO, UserSettings): GoalProgressDTO
+    }
+
+    UserServiceImpl ..|> UserService
+    FoodServiceImpl ..|> FoodService
+    EntryServiceImpl ..|> EntryService
+    EntryServiceImpl ..> NutritionCalculator: uses
+}
+
+
+
+
+
+FoodController ..> FoodService
+UserController ..> UserService
+EntryController ..> EntryService
+AuthController ..> UserService
+
+
+@enduml

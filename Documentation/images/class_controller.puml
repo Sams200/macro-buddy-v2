@@ -1,0 +1,59 @@
+@startuml
+
+package "controller" {
+    class AuthController {
+        -AuthService authService
+        +signUp()
+        +singIn()
+        +signOut()
+    }
+
+    class ChatController {
+        -ChatService chatService
+        +connect()
+        +disconnect()
+        +sendMessage()
+    }
+
+    class EntryController {
+        -EntryService entryService
+        +findByAuthenticatedUser()
+        +save()
+        +deleteById()
+    }
+
+    class FoodController {
+        -FoodService foodService
+        +findAll()
+        +findByNameMatches()
+        +findById()
+        +deleteById()
+        +save()
+    }
+
+    class UserController {
+        -UserService userService
+        +findAll()
+        +findById()
+        +changePassword()
+        +delete()
+        +findAuthenticatedUserData()
+    }
+
+    class UserSettingsController {
+        -UserSettingsService userSettingsService
+        +findAuthenticatedUserData()
+        +update()
+    }
+
+    class WaterController {
+        -WaterService waterService
+        +findByAuthenticatedUser()
+        +save()
+        +deleteById()
+        +updateById()
+    }
+
+}
+
+@enduml
